@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="style.css" />
+		<title>Black Jack</title>
+	</head>
+	<body>
+		<div class="container">
+			<div class="flex">
+				<div class="casa">
+					<h3 class="c">Casa</h3>
+					<p id="cartau">Carta u</p>
+					<p id="cartad">Carta dos</p>
+					<p id="cartat">Carta adicional</p>
+					<p id="resultatcasa"></p>
+				</div>
+				<div class="jugador">
+					<h3 class="j">Jugador</h3>
+					<p id="cartauj">Carta u</p>
+					<p id="cartadj">Carta dos</p>
+					<p id="cartatj">Carta adicional</p>
+					<p id="resultatjugador"></p>
+				</div>
+				<div class="but">
+					<button id="comencar" onclick="carta()">Comencem</button>
+					<button id="addicional" onclick="addicional()" disabled>
+						Adicional/resultat
+					</button>
+					<button id="reiniciar">
+						<img
+							src="/img_cartes/restart.png"
+							alt=""
+							style="
+								height: 50px;
+								width: 50px;
+								border: black 1px solid;
+								border-bottom: none;
+								border-radius: 5px;
+							"
+						/>
+					</button>
+				</div>
+			</div>
+		</div>
+		<script>
+			var cartes = [
+				'as',
+				'2',
+				'3',
+				'4',
+				'5',
+				'6',
+				'7',
+				'8',
+				'9',
+				'10',
+				'j',
+				'q',
+				'k',
+			];
+			var cartau, cartauj, cartad, cartadj;
+			var casa, jugador;
+			var botonComencarClicado = false;
+			document
+				.getElementById('reiniciar')
+				.addEventListener('click', function () {
+					window.location.reload();
+				});
+
+			function generateCard() {
+				return cartes[Math.floor(Math.random() * cartes.length)];
+			}
+
+			function carta() {
+				if (!botonComencarClicado) {
+					cartau = mostrarCarta('cartau', 1000);
+					cartauj = mostrarCarta('cartauj', 2000);
+					cartad = mostrarCarta('cartad', 3000);
+					cartadj = mostrarCarta('cartadj', 4000);
+
+					setTimeout(function () {
+						casa = valorCarta(cartau) + valorCarta(cartad);
+						jugador = valorCarta(cartauj) + valorCarta(cartadj);
+
+						console.log(casa);
+						console.log(jugador);
+
+						verificarMenor16();
+					}, 5000);
+
+					botonComencarClicado = true;
+					document.getElementById('comencar').disabled = true;
+				}
+			}
+
+			function mostrarCarta(elemento, retraso) {
+				var carta = generateCard();
+				setTimeout(function () {
+					document.getElementById(elemento).innerHTML = carta;
+				}, retraso);
+				return carta;
+			}
+
+			function addicional() {
+				if (casa <= 15 || jugador <= 15) {
+					if (casa <= 15) {
+						var randomCard5 = mostrarCarta('cartat', 500);
+						casa += valorCarta(randomCard5);
+					}
+					if (jugador <= 15) {
+						var randomCard6 = mostrarCarta('cartatj', 1000);
+						jugador += valorCarta(randomCard6);
+					}
+
+					document.getElementById('resultatcasa').innerHTML =
+						'Resultat final: ' + casa;
+					document.getElementById('resultatjugador').innerHTML =
+						'Resultat final: ' + jugador;
+
+					verificarGanador();
+				}
+
+				document.getElementById('addicional').disabled = true;
+			}
+
+			function valorCarta(carta) {
+				if (carta === 'j' || carta === 'q' || carta === 'k') {
+					return 10;
+				} else if (carta === 'as') {
+					return 1;
+				} else if (!isNaN(parseInt(carta))) {
+					return parseInt(carta);
+				} else {
+					console.log('Error: Carta no reconeguda');
+					return 0;
+				}
+			}
+
+			function verificarGanador() {
+				setTimeout(function () {
+					var resultat;
+
+					if (casa <= 21 && jugador <= 21) {
+						if (casa === jugador) {
+							resultat = 'Empat';
+						} else if (casa > jugador) {
+							resultat = 'Casa ha guanyat';
+						} else {
+							resultat = 'Jugador ha guanyat';
+						}
+					} else if (casa > 21 && jugador > 21) {
+						resultat = 'Els dos han perdut';
+					} else if (casa <= 21 && jugador > 21) {
+						resultat = 'Casa ha guanyat';
+					} else if (casa > 21 && jugador <= 21) {
+						resultat = 'Jugador ha guanyat';
+					} else {
+						if (21 - casa < 21 - jugador) {
+							resultat = 'Casa ha guanyat';
+						} else {
+							resultat = 'Jugador ha guanyat';
+						}
+					}
+
+					alert(resultat);
+				}, 2000);
+			}
+
+			function verificarMenor16() {
+				if (casa < 16 || jugador < 16) {
+					alert(
+						'Un o els dos jugadors tenen menys de 16 punts, es necessari una carta addiciona, siusplau agafen una:',
+					);
+					document.getElementById('addicional').disabled = false;
+				}
+			}
+		</script>
+	</body>
+</html>
